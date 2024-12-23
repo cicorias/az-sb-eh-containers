@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # 1) Azure SQL Edge
+  azure-sql-edge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: azure-sql-edge
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+      # Choose a valid edition, e.g. Developer or Edge
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    networks:
+      - localnet
+
+  # 2) Azurite (Azure Storage Emulator)
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: azurite
+    command: >
+      azurite
+      --blobHost 0.0.0.0 --blobPort 10000
+      --queueHost 0.0.0.0 --queuePort 10001
+      --tableHost 0.0.0.0 --tablePort 10002
+      --silent
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite_data:/data
+    networks:
+      - localnet
+
+  # 3) Azure Service Bus Emulator (placeholder image)
+  azure-service-bus:
+    image: yourorg/azure-service-bus-emulator:latest
+    container_name: azure-service-bus-emulator
+    depends_on:
+      - azure-sql-edge
+      - azurite
+    ports:
+      - "8081:8081"
+      - "5671:5671"
+    environment:
+      # Example environment variables; adapt as needed
+      STORAGE_CONNECTION_STRING: "UseDevelopmentStorage=true"
+      SERVICEBUS_CONNECTION: "Endpoint=sb://localhost/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=..."
+      SQL_CONNECTION_STRING: "Server=azure-sql-edge,1433;Database=master;User=sa;Password=Your_password123;TrustServerCertificate=True"
+    networks:
+      - localnet
+
+  # 4) Azure Event Hubs Emulator (placeholder image)
+  azure-event-hubs:
+    image: yourorg/azure-event-hubs-emulator:latest
+    container_name: azure-event-hubs-emulator
+    depends_on:
+      - azure-sql-edge
+      - azurite
+    ports:
+      - "8082:8082"
+      - "5672:5672"
+    environment:
+      # Example environment variables; adapt as needed
+      STORAGE_CONNECTION_STRING: "UseDevelopmentStorage=true"
+      EVENTHUB_CONNECTION: "Endpoint=sb://localhost/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=..."
+      SQL_CONNECTION_STRING: "Server=azure-sql-edge,1433;Database=master;User=sa;Password=Your_password123;TrustServerCertificate=True"
+    networks:
+      - localnet
+
+volumes:
+  azurite_data:
+
+networks:
+  localnet:
+    driver: bridge
