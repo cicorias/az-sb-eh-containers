@@ -11,7 +11,7 @@ services:
     volumes:
       - "./config/event_hub_config.json:/Eventhubs_Emulator/ConfigFiles/Config.json"
     ports:
-      - "5673:5672"
+      - "5672:5672"
       - "9092:9092"
     environment:
       BLOB_SERVER: azurite
@@ -37,36 +37,36 @@ services:
         aliases:
           - "azurite"
 
-  sb-emualtor:
-    container_name: "servicebus-emulator"
-    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
-    pull_policy: missing
-    volumes:
-      - "./config/svc_bus_config.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
-    ports:
-      - "5672:5672"
-    environment:
-      SQL_SERVER: sqledge
-      ACCEPT_EULA: Y
-      <<: *common-variables
-    depends_on:
-      - sqledge
-    networks:
-      eh-sb-emualtor:
-        aliases:
-          - "svcbus-emulator"
+  # sb-emualtor:
+  #   container_name: "servicebus-emulator"
+  #   image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
+  #   pull_policy: missing
+  #   volumes:
+  #     - "./config/svc_bus_config.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
+  #   ports:
+  #     - "5672:5672"
+  #   environment:
+  #     SQL_SERVER: sqledge
+  #     ACCEPT_EULA: Y
+  #     <<: *common-variables
+  #   depends_on:
+  #     - sqledge
+  #   networks:
+  #     eh-sb-emualtor:
+  #       aliases:
+  #         - "svcbus-emulator"
 
-  sqledge:
-    container_name: "sqledge"
-    image: "mcr.microsoft.com/azure-sql-edge:latest"
-    pull_policy: missing
-    networks:
-      eh-sb-emualtor:
-        aliases:
-          - "sqledge"
-    environment:
-      ACCEPT_EULA: Y
-      <<: *common-variables
+  # sqledge:
+  #   container_name: "sqledge"
+  #   image: "mcr.microsoft.com/azure-sql-edge:latest"
+  #   pull_policy: missing
+  #   networks:
+  #     eh-sb-emualtor:
+  #       aliases:
+  #         - "sqledge"
+  #   environment:
+  #     ACCEPT_EULA: Y
+  #     <<: *common-variables
 
 networks:
   eh-sb-emualtor:
